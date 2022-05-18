@@ -1,5 +1,9 @@
 package com.example.noteapp;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,10 +11,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -23,17 +24,22 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.intellij.lang.annotations.Pattern;
 
 import java.util.concurrent.TimeUnit;
 
 public class Register extends AppCompatActivity {
 
     public static boolean checkEnterOTP;
-    boolean CHECK_EXIST;
+    public static boolean CHECK_EXIST;
+
+
     EditText registerName, registerEmail, registerPassword, registerConfirmPassword, registerPhoneNumber;
     Button btnRegister, btnLogin;
     FirebaseAuth fireAuth;
@@ -51,7 +57,7 @@ public class Register extends AppCompatActivity {
         initListener();
         //gf
     }
-//ok
+    //ok
     private void initUi(){
         mLayoutRegister = findViewById(R.id.layoutRegister);
         registerName = findViewById(R.id.registerName);
@@ -96,14 +102,14 @@ public class Register extends AppCompatActivity {
                     return;
                 }
                 if(!Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()){
-                    setErr(registerEmail, "Email is invalid");
+                    setErr(registerEmail, "Email  invalid");
                     return;
                 }
-                if (checkPhone_Email_Exist()){
-                    setErr(registerEmail, "Your Email already exists.");
-                    setErr(registerPhoneNumber, "Your phone number already exists.");
-                    return;
-                }
+//                if (checkPhone_Email_Exist()){
+//                    setErr(registerEmail, "Email already exists");
+//                    setErr(registerPhoneNumber, "Phone number was used");
+//                    return;
+//                }
                 if(userPhoneNumber.isEmpty()){
                     setErr(registerPhoneNumber, "Phone number is required");
                     return;
@@ -122,6 +128,7 @@ public class Register extends AppCompatActivity {
                     setErr(registerConfirmPassword, "Password is invalid");
                     return;
                 }
+                Log.d("CHECK_EXIST", CHECK_EXIST + "");
                 //xac thuc otp
 //              Data is validated
                 fireAuth.createUserWithEmailAndPassword(userEmail,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -133,6 +140,7 @@ public class Register extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(Register.this, "The email address is already in use by another account", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -195,19 +203,21 @@ public class Register extends AppCompatActivity {
     }
 
     private boolean checkPhone_Email_Exist(){
+
         CollectionReference userRef = fStore.collection("users");
-        Query queryMail_Phone = userRef.whereEqualTo("email", userEmail)
-                .whereEqualTo("phoneNumber", userPhoneNumber);
+        Query queryMail_Phone = userRef.whereEqualTo("phoneNumber", userPhoneNumber);
         queryMail_Phone.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
                 if (task.isSuccessful()){
                     for (QueryDocumentSnapshot document : task.getResult()){
                         if (document.exists()){
                             Log.d("CHECK_EXIST", "Name and Email already exists");
                             CHECK_EXIST = true ;
+                        } else {
+                            CHECK_EXIST = false;
                         }
-                        CHECK_EXIST = false;
                     }
                 } else {
                     Log.d("TAG", "error get data:" + task.getException());
