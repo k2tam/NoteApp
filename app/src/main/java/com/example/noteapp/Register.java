@@ -131,11 +131,12 @@ public class Register extends AppCompatActivity {
                 Log.d("CHECK_EXIST", CHECK_EXIST + "");
                 //xac thuc otp
 //              Data is validated
+
                 fireAuth.createUserWithEmailAndPassword(userEmail,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
                         addUserToData();
-                        onClickVerifyPhoneNumber(userPhoneNumber);
+                        onClickVerifyPhoneNumber();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -147,40 +148,74 @@ public class Register extends AppCompatActivity {
         });
     }
 
-    public void onClickVerifyPhoneNumber(String phoneNumber){
-        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-            }
+    public void onClickVerifyPhoneNumber(){
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                "+84" + userPhoneNumber,
+                120, TimeUnit.SECONDS,
+                Register.this,
+                new PhoneAuthProvider.OnVerificationStateChangedCallbacks(){
 
-            @Override
-            public void onVerificationFailed(@NonNull FirebaseException e) {
-            }
-            @Override
-            public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                Intent intent = new Intent(getApplicationContext(), VerifyPhoneNumber.class);
-                intent.putExtra("phoneNumber", phoneNumber);
-                intent.putExtra("verificationId", verificationId);
-                intent.putExtra("userID",FirebaseAuth.getInstance().getCurrentUser().getUid());
+                    @Override
+                    public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
 
-                Log.d("onCodeSent", "onCodeSent:" + verificationId);
-                Log.d("userID", "userID " + FirebaseAuth.getInstance().getCurrentUser().getUid());
-                startActivity(intent);
-            }
+                    }
 
-            @Override
-            public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
-                super.onCodeAutoRetrievalTimeOut(s);
-            }
-        };
+                    @Override
+                    public void onVerificationFailed(@NonNull FirebaseException e) {
+                        Toast.makeText(Register.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
 
-        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                .setPhoneNumber("+84" + phoneNumber)
-                .setTimeout(120L, TimeUnit.SECONDS)
-                .setActivity(this)
-                .setCallbacks(mCallbacks)
-                .build();
-        PhoneAuthProvider.verifyPhoneNumber(options);
+                    @Override
+                    public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                        super.onCodeSent(verificationId, forceResendingToken);
+                        Intent intent = new Intent(Register.this, VerifyPhoneNumber.class);
+                        intent.putExtra("phoneNumber", userPhoneNumber);
+                        intent.putExtra("verificationId", verificationId);
+                        intent.putExtra("userID",FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+                        Log.d("onCodeSent", "onCodeSent:" + verificationId);
+                        Log.d("userID", "userID " + FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
+                        super.onCodeAutoRetrievalTimeOut(s);
+                    }
+                }
+        );
+//        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
+//                .setPhoneNumber("+84" + phoneNumber)
+//                .setTimeout(120L, TimeUnit.SECONDS)
+//                .setActivity(this)
+//                .setCallbacks(mCallbacks)
+//                .build();
+//        PhoneAuthProvider.verifyPhoneNumber(options);
+//        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+//            @Override
+//            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+//            }
+//
+//            @Override
+//            public void onVerificationFailed(@NonNull FirebaseException e) {
+//            }
+//            @Override
+//            public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+//                Intent intent = new Intent(getApplicationContext(), VerifyPhoneNumber.class);
+//                intent.putExtra("phoneNumber", phoneNumber);
+//                intent.putExtra("verificationId", verificationId);
+//                intent.putExtra("userID",FirebaseAuth.getInstance().getCurrentUser().getUid());
+//
+//                Log.d("onCodeSent", "onCodeSent:" + verificationId);
+//                Log.d("userID", "userID " + FirebaseAuth.getInstance().getCurrentUser().getUid());
+//                startActivity(intent);
+//            }
+//
+//            @Override
+//            public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
+//                super.onCodeAutoRetrievalTimeOut(s);
+//            }
+//        };
     }
 
     private void setErr(EditText edt, String warn){

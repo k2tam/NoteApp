@@ -59,7 +59,7 @@ public class VerifyPhoneNumber extends AppCompatActivity {
                             if(task.isSuccessful()){
                                 updateCheckedOTP();
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
                             }else {
                                 Toast.makeText(VerifyPhoneNumber.this, "Invalid code", Toast.LENGTH_SHORT).show();
@@ -72,7 +72,7 @@ public class VerifyPhoneNumber extends AppCompatActivity {
         verifySkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                startActivity(new Intent(VerifyPhoneNumber.this, MainActivity.class));
                 finish();
             }
         });
