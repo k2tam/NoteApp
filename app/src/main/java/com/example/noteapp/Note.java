@@ -1,12 +1,8 @@
 package com.example.noteapp;
 
-import android.net.Uri;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 public class Note implements Serializable{
     private String noteID;

@@ -1,8 +1,5 @@
 package com.example.noteapp;
 
-import android.media.Image;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +49,7 @@ public class TrashAdapter extends FirestoreRecyclerAdapter<Note, TrashAdapter.Tr
         }
 
         @Override
-        protected void onBindViewHolder(@NonNull com.example.noteapp.TrashAdapter.TrashHolder holder, int position, @NonNull Note model) {
+        protected void onBindViewHolder(@NonNull TrashHolder holder, int position, @NonNull Note model) {
             holder.title.setText(model.getTitle());
             holder.content.setText(model.getContent());
 
@@ -65,7 +62,7 @@ public class TrashAdapter extends FirestoreRecyclerAdapter<Note, TrashAdapter.Tr
 
         @NonNull
         @Override
-        public com.example.noteapp.TrashAdapter.TrashHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public TrashHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.note_grid, parent, false);
 
             return new TrashHolder(view);

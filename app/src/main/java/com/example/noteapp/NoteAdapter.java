@@ -1,7 +1,6 @@
 package com.example.noteapp;
 
 import android.content.Context;
-
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;

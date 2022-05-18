@@ -1,8 +1,5 @@
 package com.example.noteapp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,10 +8,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Login extends AppCompatActivity {
 
@@ -22,6 +25,7 @@ public class Login extends AppCompatActivity {
     EditText loginEmail, loginPassword;
     Button loginSign, loginRegister;
     FirebaseAuth fAuth;
+    FirebaseFirestore fStore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +33,7 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         fAuth = FirebaseAuth.getInstance();
-
+        fStore = FirebaseFirestore.getInstance();
         initUi();
         initListener();
     }
@@ -65,13 +69,20 @@ public class Login extends AppCompatActivity {
                 fAuth.signInWithEmailAndPassword(email,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
-                        if(!fAuth.getCurrentUser().isEmailVerified()){
-                            startActivity(new Intent(getApplicationContext(), VerifyEmail.class));
-                            finish();
-                        }else{
-                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                            finish();
-                        }
+                        DocumentReference documentReference = fStore.collection("users")
+                                .document(authResult.getUser().getUid());
+                        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Boolean otpchecked = (Boolean) documentSnapshot.get("otpchecked");
+                                if (!otpchecked) {
+                                    Toast.makeText(getApplicationContext(), "You are not checked OTP", Toast.LENGTH_LONG).show();
+                                } else {
+                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                    finish();
+                                }
+                            }
+                        });
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -92,21 +103,11 @@ public class Login extends AppCompatActivity {
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        if(FirebaseAuth.getInstance().getCurrentUser() != null){
-//            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//            finish();
-//        }
-//    }
-
     private void initUi(){
         loginEmail = findViewById(R.id.loginEmail);
         loginPassword = findViewById(R.id.loginPassword);
         loginSign = findViewById(R.id.loginSignIn);
         loginRegister = findViewById(R.id.loginRegister);
         loginForgot = findViewById(R.id.loginForgot);
-
     }
 }
