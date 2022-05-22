@@ -11,6 +11,8 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,11 +39,13 @@ import java.util.concurrent.TimeUnit;
 public class Register extends AppCompatActivity {
 
     public static boolean checkEnterOTP;
-    public static boolean CHECK_EXIST;
+    public static boolean CHECK_EXIST = false;
 
 
     EditText registerName, registerEmail, registerPassword, registerConfirmPassword, registerPhoneNumber;
-    Button btnRegister, btnLogin;
+    Button btnRegister;
+    ProgressBar progressBar;
+    TextView txt_registerLogin;
     FirebaseAuth fireAuth;
 
     ConstraintLayout mLayoutRegister;
@@ -55,7 +59,6 @@ public class Register extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         initUi();
         initListener();
-        //gf
     }
     //ok
     private void initUi(){
@@ -66,14 +69,15 @@ public class Register extends AppCompatActivity {
         registerConfirmPassword = findViewById(R.id.registerPassword2);
         registerPhoneNumber = findViewById(R.id.registerPhoneNumber);
         btnRegister = findViewById(R.id.registerBtnRegister);
-        btnLogin = findViewById(R.id.btnRegisterLogin);
+        progressBar = findViewById(R.id.progress_bar);
+        txt_registerLogin = findViewById(R.id.txt_registerLogin);
         fireAuth = FirebaseAuth.getInstance();
         fStore = FirebaseFirestore.getInstance();
     }
 
     private void initListener() {
         //        Switch to Login
-        btnLogin.setOnClickListener(new View.OnClickListener() {
+        txt_registerLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext(), Login.class));
@@ -106,7 +110,7 @@ public class Register extends AppCompatActivity {
                     return;
                 }
 //                if (checkPhone_Email_Exist()){
-//                    setErr(registerEmail, "Email already exists");
+////                    setErr(registerEmail, "Email already exists");
 //                    setErr(registerPhoneNumber, "Phone number was used");
 //                    return;
 //                }
@@ -168,6 +172,8 @@ public class Register extends AppCompatActivity {
                     @Override
                     public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                         super.onCodeSent(verificationId, forceResendingToken);
+                        progressBar.setVisibility(View.VISIBLE);
+                        btnRegister.setVisibility(View.INVISIBLE);
                         Intent intent = new Intent(Register.this, VerifyPhoneNumber.class);
                         intent.putExtra("phoneNumber", userPhoneNumber);
                         intent.putExtra("verificationId", verificationId);
@@ -184,38 +190,6 @@ public class Register extends AppCompatActivity {
                     }
                 }
         );
-//        PhoneAuthOptions options = PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-//                .setPhoneNumber("+84" + phoneNumber)
-//                .setTimeout(120L, TimeUnit.SECONDS)
-//                .setActivity(this)
-//                .setCallbacks(mCallbacks)
-//                .build();
-//        PhoneAuthProvider.verifyPhoneNumber(options);
-//        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-//            @Override
-//            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-//            }
-//
-//            @Override
-//            public void onVerificationFailed(@NonNull FirebaseException e) {
-//            }
-//            @Override
-//            public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-//                Intent intent = new Intent(getApplicationContext(), VerifyPhoneNumber.class);
-//                intent.putExtra("phoneNumber", phoneNumber);
-//                intent.putExtra("verificationId", verificationId);
-//                intent.putExtra("userID",FirebaseAuth.getInstance().getCurrentUser().getUid());
-//
-//                Log.d("onCodeSent", "onCodeSent:" + verificationId);
-//                Log.d("userID", "userID " + FirebaseAuth.getInstance().getCurrentUser().getUid());
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onCodeAutoRetrievalTimeOut(@NonNull String s) {
-//                super.onCodeAutoRetrievalTimeOut(s);
-//            }
-//        };
     }
 
     private void setErr(EditText edt, String warn){
